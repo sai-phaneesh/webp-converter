@@ -866,6 +866,7 @@
                 (blob) => {
                   item.webpBlob = blob;
                   item.webpSize = blob.size;
+                  item.webpUrl = URL.createObjectURL(blob); // <-- Fix: set webpUrl for download button
                   item.converted = true;
                   renderList();
                   resolve();
