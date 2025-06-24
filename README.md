@@ -34,6 +34,10 @@ A modern, mobile-friendly, and privacy-respecting web application to convert ima
 
 > Add screenshots here for desktop and mobile views if desired.
 
+## Contributing
+
+We welcome contributions from the open source community! Whether you want to report bugs, suggest features, improve the UI, or help with documentation, your input is highly valued. Feel free to open issues or submit pull requests. Let's make image conversion on the web even better—together!
+
 ## License
 
 MIT License

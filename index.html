@@ -187,14 +187,22 @@
         #imageList td {
           font-size: 12px;
           padding: 6px 2px;
-          min-width: 60px;
+          min-width: 40px;
           word-break: break-word;
         }
         #imageList th:first-child,
         #imageList td:first-child {
-          min-width: 32px;
-          width: 32px;
-          max-width: 32px;
+          min-width: 20px;
+          width: 20px;
+          max-width: 20px;
+          padding-left: 0;
+          padding-right: 0;
+        }
+        #imageList th:nth-child(2),
+        #imageList td:nth-child(2) {
+          min-width: 24px;
+          width: 24px;
+          max-width: 24px;
           padding-left: 0;
           padding-right: 0;
         }
@@ -406,7 +414,10 @@
         <table id="imageList">
           <thead>
             <tr>
-              <th><input type="checkbox" id="selectAll" /></th>
+              <th style="width: 24px; min-width: 24px; max-width: 24px">#</th>
+              <th style="width: 28px; min-width: 28px; max-width: 28px">
+                <input type="checkbox" id="selectAll" />
+              </th>
               <th>Original Preview</th>
               <th>Final Preview</th>
               <th>Reduction</th>
@@ -673,7 +684,7 @@
 
       function renderList() {
         imageList.innerHTML = "";
-        items.forEach((i) => {
+        items.forEach((i, idx) => {
           const beforeSize = (i.originalSize / 1024).toFixed(1) + " KB";
           const afterSize = i.webpSize
             ? (i.webpSize / 1024).toFixed(1) + " KB"
@@ -683,11 +694,14 @@
             const percent = 100 - (i.webpSize / i.originalSize) * 100;
             reduction = `${beforeSize} → ${afterSize} (${percent.toFixed(1)}%)`;
           }
+          // Uncheck selector if converted
+          if (i.converted) i.selected = false;
           const tr = document.createElement("tr");
           tr.innerHTML = `
-      <td><input type="checkbox" class="selChk" data-id="${i.id}" ${
-            i.selected ? "checked" : ""
-          } /></td>
+      <td style="width:24px;min-width:24px;max-width:24px;">${idx + 1}</td>
+      <td style="width:28px;min-width:28px;max-width:28px;"><input type="checkbox" class="selChk" data-id="${
+        i.id
+      }" ${i.selected ? "checked" : ""} /></td>
       <td style="vertical-align:top;">
         <div style="display:flex;flex-direction:column;align-items:center;">
           <img src="${URL.createObjectURL(i.file)}" />
@@ -724,15 +738,18 @@
             : ""
         }
         ${
-          i.converted
-            ? `<a class="btn" href="${URL.createObjectURL(
-                i.webpBlob
-              )}" download="${i.file.name.replace(
+          i.converted && i.webpUrl
+            ? `<a class="btn" href="${
+                i.webpUrl
+              }" download="${i.file.name.replace(
                 /\.\w+$/,
                 ""
               )}.webp">Download</a>`
             : ""
         }
+        <button class="btn deleteOne" data-id="${
+          i.id
+        }" style="background:#e74c3c;color:#fff;">Delete</button>
       </td>
     `;
           imageList.appendChild(tr);
@@ -778,6 +795,17 @@
         if (e.target.classList.contains("convertOne")) {
           const id = e.target.dataset.id;
           convertItems([id]);
+        }
+        if (e.target.classList.contains("deleteOne")) {
+          const id = e.target.dataset.id;
+          // Remove object URLs for this item
+          const item = items.find((i) => i.id === id);
+          if (item) {
+            if (item.fileUrl) URL.revokeObjectURL(item.fileUrl);
+            if (item.webpUrl) URL.revokeObjectURL(item.webpUrl);
+          }
+          items = items.filter((i) => i.id !== id);
+          renderList();
         }
       });
 
